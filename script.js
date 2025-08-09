@@ -4,11 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // pregunta 1
 
     const calculateButton = document.getElementById('calculateButton');
-    const inputH = document.getElementById('inputH');
-    const inputBeta = document.getElementById('inputBeta');
-    const inputX = document.getElementById('inputX');
+    const input_radio_circunferencia = document.getElementById('input_radio_circunferencia');
     const calculationResult = document.getElementById('calculationResult');
-    const calculationImage = document.getElementById('calculation-image');
       
     // Event listener for the calculate button
     if (calculateButton) {
@@ -23,33 +20,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to get input values, perform calculation, and display result
     function performCalculation() {
-        // Get values from input fields
-        const h = parseFloat(inputH.value);
-        const beta = parseFloat(inputBeta.value);
-        const x = parseFloat(inputX.value);
+  // 1) Leer y validar
+  const r = parseFloat(input_radio_circunferencia.value);
+  if (isNaN(r) || r <= 0) {
+    calculationResult.textContent = 'Por favor, ingrese un radio válido (> 0).';
+    calculationResult.style.color = 'red';
+    return;
+  }
 
-        // Validate inputs
-        if (isNaN(h) || isNaN(beta) || isNaN(x)) {
-            calculationResult.textContent = 'Por favor, ingrese números válidos en todos los campos.';
-            calculationResult.style.color = 'red';
-            return;
-        }
+  // 2) Construir la cuadrática: 5x^2 + r x - (r^2 - (r/2)^2) = 0
+  const a = 5;
+  const b = r;
+  const c = - (r ** 2 - (r / 2) ** 2);
 
-        // Implement the calculation logic from the Python code
-        // angulo = radians(B+90)  => (beta + 90) * PI / 180
-        const angleRad = (beta + 90) * Math.PI / 180;
+  const discriminante = b * b - 4 * a * c;
+  if (discriminante < 0) {
+    calculationResult.textContent = 'No hay soluciones reales (discriminante < 0).';
+    calculationResult.style.color = 'red';
+    return;
+  }
 
-        // a = sqrt((x**2)+(h**2)-2*x*h*cos(angulo))
-        let a = Math.sqrt(Math.pow(x, 2) + Math.pow(h, 2) - (2 * x * h * Math.cos(angleRad)));
+  // 3) Raíces
+  const sqrtD = Math.sqrt(discriminante);
+  const x1 = (-b + sqrtD) / (2 * a);
+  const x2 = (-b - sqrtD) / (2 * a);
 
-        // a = round(a,2)
-        a = Math.round(a * 100) / 100; // Rounds to 2 decimal places
+  // 4) Elegir raíz positiva (si aplica a tu problema)
+  let x = null;
+  if (x1 > 0) {
+    x = x1;
+  } else if (x2 > 0) {
+    x = x2;
+  } else {
+    calculationResult.textContent = 'No hay raíz positiva.';
+    calculationResult.style.color = 'red';
+    return;
+  }
 
-        // Display the result
-        calculationResult.textContent = 'La distancia a es: ' + a.toFixed(2);
-        calculationResult.style.color = 'green'; // Or your preferred color for success
-    }
+  const area_cuadrado_grande= (r/2)**2
+  const area_cuadrado_pequeño= x**2
 
+  const area_total = 2*area_cuadrado_grande+2*area_cuadrado_pequeño
+
+  // 5) Mostrar resultado
+  calculationResult.textContent = `x = ${area_total.toFixed(5)}`;
+  calculationResult.style.color = 'green';
+}
         // pregunta 2
 
     const calculateButton2 = document.getElementById('calculateButton2');
